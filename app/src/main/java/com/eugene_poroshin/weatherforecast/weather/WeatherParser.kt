@@ -18,7 +18,7 @@ class WeatherParser(private val data: String) {
         }
 
     @get:Throws(JSONException::class)
-    val parsedListForecastWeather: List<WeatherForecast>
+    val parsedListForecastWeather: MutableList<WeatherForecast>
         get() {
             val forecastList: MutableList<WeatherForecast> =
                 ArrayList()

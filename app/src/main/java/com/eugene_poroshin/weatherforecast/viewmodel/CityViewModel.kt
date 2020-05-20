@@ -9,7 +9,7 @@ import com.eugene_poroshin.weatherforecast.repo.database.CityEntity
 class CityViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: Repository = Repository(application)
-    val liveData: LiveData<List<CityEntity>>
+    val liveData: LiveData<MutableList<CityEntity>>
 
     fun insert(city: CityEntity?) {
         repository.insert(city)

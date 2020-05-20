@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity(), OnOpenFragmentListener {
             .commit()
     }
 
-    override fun onOpenForecastFragmentByCityName(newCityName: String) {
+    override fun onOpenForecastFragmentByCityName(newCityName: String?) {
         supportFragmentManager
             .beginTransaction()
             .replace(
