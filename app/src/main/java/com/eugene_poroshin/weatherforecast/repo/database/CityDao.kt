@@ -6,14 +6,14 @@ import androidx.room.*
 @Dao
 interface CityDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(city: CityEntity)
+    suspend fun insert(city: CityEntity)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun update(city: CityEntity)
+    suspend fun update(city: CityEntity)
 
     @Delete
-    fun delete(city: CityEntity)
+    suspend fun delete(city: CityEntity)
 
-    @get:Query("SELECT * FROM cities")
-    val allCities: LiveData<List<CityEntity?>?>?
+    @Query("SELECT * FROM cities ORDER BY name ASC")
+    fun getAllCities(): LiveData<List<CityEntity>>
 }

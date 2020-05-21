@@ -26,14 +26,15 @@ import java.io.IOException
 import java.util.*
 
 class CityListFragment : Fragment(), EditNameDialogListener {
-    private var toolbar: Toolbar? = null
-    private var fabAddCity: FloatingActionButton? = null
-    private var addCityDialogFragment: AddCityDialogFragment? = null
-    private var recyclerView: RecyclerView? = null
-    private var adapter: CityListAdapter? = null
-    private var cities: MutableList<CityEntity> = ArrayList()
-    private var viewModel: CityViewModel? = null
+    private lateinit var toolbar: Toolbar
+    private lateinit var fabAddCity: FloatingActionButton
+    private lateinit var addCityDialogFragment: AddCityDialogFragment
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: CityListAdapter
+    private var cities: List<CityEntity> = ArrayList()
+    private lateinit var viewModel: CityViewModel
     private var onOpenFragmentListener: OnOpenFragmentListener? = null
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is OnOpenFragmentListener) {
@@ -73,30 +74,26 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
-        toolbar!!.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
-        toolbar!!.title = "Choose a City"
-        toolbar!!.setNavigationOnClickListener {
-            if (onOpenFragmentListener != null) {
-                onOpenFragmentListener!!.onOpenForecastFragment()
-            }
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
+        toolbar.title = "Choose a City"
+        toolbar.setNavigationOnClickListener {
+            onOpenFragmentListener!!.onOpenForecastFragment()
         }
-        fabAddCity!!.setOnClickListener {
+        fabAddCity.setOnClickListener {
             addCityDialogFragment = AddCityDialogFragment()
-            addCityDialogFragment!!.setTargetFragment(this@CityListFragment, 1)
-            addCityDialogFragment!!.show(
+            addCityDialogFragment.setTargetFragment(this@CityListFragment, 1)
+            addCityDialogFragment.show(
                 parentFragmentManager,
-                addCityDialogFragment!!.javaClass.name
+                addCityDialogFragment.javaClass.name
             )
         }
-        adapter = CityListAdapter(cities, communicator)
-        recyclerView!!.layoutManager = LinearLayoutManager(activity)
-        recyclerView!!.adapter = adapter
+        adapter = CityListAdapter(requireContext(), communicator)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(activity)
         viewModel = ViewModelProvider(this).get(CityViewModel::class.java)
-        viewModel!!.liveData.observe(
-            viewLifecycleOwner,
-            Observer { cityEntities ->
-                cities = cityEntities
-                adapter!!.setCities(cities)
+        viewModel.allCitiesLiveData.observe(viewLifecycleOwner, Observer { cities ->
+                cities?.let { adapter.setCities(it) }
+
             })
     }
 
@@ -134,7 +131,7 @@ class CityListFragment : Fragment(), EditNameDialogListener {
                     }
                     else -> {
                         showToast("The City has been successfully added")
-                        viewModel!!.insert(CityEntity(cityName))
+                        viewModel.insert(CityEntity(name = cityName))
                     }
                 }
             }
