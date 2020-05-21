@@ -12,7 +12,7 @@
         android:id="@+id/itemImageView"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        tools:background="@drawable/ic_location_on_red_24dp"  />
+        tools:background="@drawable/ic_location_on_red_24dp" />
 
     <TextView
         android:id="@+id/itemTextView"

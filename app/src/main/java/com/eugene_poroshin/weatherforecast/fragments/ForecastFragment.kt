@@ -32,6 +32,7 @@ class ForecastFragment : Fragment() {
     private val SAVED_CITY = "SAVED_CITY"
     private var viewWeatherIcon: ImageView? = null
     private var textViewTemperature: TextView? = null
+    private var textViewTempMode: TextView? = null
     private var textViewDescriptionWeather: TextView? = null
     private var textViewCityName: TextView? = null
     private var toolbar: Toolbar? = null
@@ -69,6 +70,7 @@ class ForecastFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_forecast, container, false)
         viewWeatherIcon = view.findViewById(R.id.viewWeatherIcon)
         textViewTemperature = view.findViewById(R.id.textViewTemperature)
+        textViewTempMode = view.findViewById(R.id.textViewTempMode)
         textViewDescriptionWeather = view.findViewById(R.id.textViewDescriptionWeather)
         textViewCityName = view.findViewById(R.id.textViewCityName)
         view.findViewById<View>(R.id.buttonTemperatureMode)
@@ -121,8 +123,7 @@ class ForecastFragment : Fragment() {
 
     private fun getCurrentWeather(cityName: String, tempMode: Boolean) {
         val apiKey = Constants.API_KEY
-        val url: String
-        url = if (!tempMode) {
+        val url: String = if (!tempMode) {
             String.format(
                 Constants.GET_CURRENT_WEATHER_BY_CITY_NAME_METRIC,
                 cityName,
@@ -151,7 +152,7 @@ class ForecastFragment : Fragment() {
                 val weatherParser = WeatherParser(str)
                 try {
                     val weatherCurrent = weatherParser.parsedCurrentWeather
-                    showCurrentWeather(weatherCurrent)
+                    showCurrentWeather(weatherCurrent, tempMode)
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }
@@ -159,7 +160,7 @@ class ForecastFragment : Fragment() {
         })
     }
 
-    private fun showCurrentWeather(weatherCurrent: WeatherCurrent) {
+    private fun showCurrentWeather(weatherCurrent: WeatherCurrent, tempMode: Boolean) {
         requireActivity().runOnUiThread {
             val imageUrl = String.format(
                 Constants.GET_ICON,
@@ -168,6 +169,9 @@ class ForecastFragment : Fragment() {
             Picasso.get().load(imageUrl).into(viewWeatherIcon)
             textViewDescriptionWeather!!.text = weatherCurrent.description
             textViewTemperature!!.text = DecimalFormat("##.#").format(weatherCurrent.temperature)
+            if (!tempMode) { textViewTempMode!!.text = "℃"
+            } else { textViewTempMode!!.text = "℉"
+            }
         }
     }
 

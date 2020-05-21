@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eugene_poroshin.weatherforecast.R
 import com.eugene_poroshin.weatherforecast.adapter.CityListAdapter
 import com.eugene_poroshin.weatherforecast.fragments.AddCityDialogFragment.EditNameDialogListener
-import com.eugene_poroshin.weatherforecast.fragments.CityListFragment
 import com.eugene_poroshin.weatherforecast.repo.database.CityEntity
 import com.eugene_poroshin.weatherforecast.viewmodel.CityViewModel
 import com.eugene_poroshin.weatherforecast.weather.Constants
@@ -102,7 +101,7 @@ class CityListFragment : Fragment(), EditNameDialogListener {
     }
 
     override fun onFinishEditDialog(inputText: String?) {
-        validateCityName(inputText)
+        validateCityName(inputText?.capitalize())
     }
 
     private fun validateCityName(cityName: String?) {
@@ -126,13 +125,17 @@ class CityListFragment : Fragment(), EditNameDialogListener {
                 response: Response
             ) {
                 val str = response.body!!.string()
-                if (str == "{\"cod\":\"404\",\"message\":\"city not found\"}") {
-                    showToast("This city does not exist, try again please")
-                } else if (str.startsWith("{\"cod\":")) {
-                    showToast("Adding failed. Please contact the app developer")
-                } else {
-                    showToast("The City has been successfully added")
-                    viewModel!!.insert(CityEntity(cityName))
+                when {
+                    str == "{\"cod\":\"404\",\"message\":\"city not found\"}" -> {
+                        showToast("This city does not exist, try again please")
+                    }
+                    str.startsWith("{\"cod\":") -> {
+                        showToast("Adding failed. Please contact the app developer")
+                    }
+                    else -> {
+                        showToast("The City has been successfully added")
+                        viewModel!!.insert(CityEntity(cityName))
+                    }
                 }
             }
         })

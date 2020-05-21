@@ -42,7 +42,7 @@
         app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
         android:layout_marginTop="23dp"
         android:layout_marginLeft="3dp"
-        tools:text="C"
+        tools:text="℃"
         android:textSize="18sp"/>
 
     <TextView

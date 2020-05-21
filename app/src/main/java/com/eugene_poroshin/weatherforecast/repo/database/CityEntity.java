@@ -7,11 +7,12 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "cities")
 public class CityEntity {
 
-    @ColumnInfo(name = "name")
-    private String name;
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     private int id;
+
+    @ColumnInfo(name = "name")
+    private String name;
 
     public CityEntity(String name) {
         this.name = name;
