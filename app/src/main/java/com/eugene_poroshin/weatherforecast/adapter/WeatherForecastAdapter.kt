@@ -9,16 +9,17 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.eugene_poroshin.weatherforecast.R
 import com.eugene_poroshin.weatherforecast.weather.Constants
+import com.eugene_poroshin.weatherforecast.weather.TemperatureMode
 import com.eugene_poroshin.weatherforecast.weather.WeatherForecast
 import com.squareup.picasso.Picasso
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-class WeatherForecastAdapter(forecast: MutableList<WeatherForecast>) :
-    RecyclerView.Adapter<WeatherForecastAdapter.RecyclerViewHolder>() {
+class WeatherForecastAdapter(forecast: List<WeatherForecast>) :
+    RecyclerView.Adapter<WeatherForecastAdapter.ForecastViewHolder>() {
 
-    private var forecastList: MutableList<WeatherForecast>?
+    private var forecastList: List<WeatherForecast>
 
     init {
         forecastList = ArrayList(forecast)
@@ -27,20 +28,20 @@ class WeatherForecastAdapter(forecast: MutableList<WeatherForecast>) :
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): RecyclerViewHolder {
+    ): ForecastViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.forecast_item, parent, false)
-        return RecyclerViewHolder(
+        return ForecastViewHolder(
             view
         )
     }
 
     @SuppressLint("SimpleDateFormat")
     override fun onBindViewHolder(
-        holder: RecyclerViewHolder,
+        holder: ForecastViewHolder,
         position: Int
     ) {
-        val date = forecastList!![position].date
+        val date = forecastList[position].date
         val dateFormat = SimpleDateFormat("E,-MMM dd")
         val dateText = dateFormat.format(date)
         val parts = dateText.split("-").toTypedArray()
@@ -50,18 +51,22 @@ class WeatherForecastAdapter(forecast: MutableList<WeatherForecast>) :
         holder.textViewForecastDayAndMonth.text = dayAndMonth
         val imageUrl = String.format(
             Constants.GET_ICON,
-            forecastList!![position].iconId
+            forecastList[position].iconId
         )
+        //TODO change to Koin
         Picasso.get().load(imageUrl).into(holder.forecastWeatherIcon)
         holder.textViewForecastTemperature.text =
-            DecimalFormat("##.#").format(forecastList!![position].temperature)
-        holder.textViewForecastDescription.text = forecastList!![position].description
+            DecimalFormat("##.#").format(forecastList[position].temperature)
+        if (forecastList[0].temperatureMode == TemperatureMode.CELSIUS) {
+            holder.itemTextViewTempMode.text = "℃"
+        } else {
+            holder.itemTextViewTempMode.text = "℉"
+        }
+        holder.textViewForecastDescription.text = forecastList[position].description
     }
 
     override fun getItemCount(): Int {
-        return if (forecastList != null) {
-            forecastList!!.size
-        } else 0
+        return forecastList.size
     }
 
     fun setForecast(forecast: MutableList<WeatherForecast>) {
@@ -69,26 +74,13 @@ class WeatherForecastAdapter(forecast: MutableList<WeatherForecast>) :
         notifyDataSetChanged()
     }
 
-    inner class RecyclerViewHolder(itemView: View) :
+    inner class ForecastViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
-        val textViewForecastDayOfWeek: TextView
-        val textViewForecastDayAndMonth: TextView
-        val forecastWeatherIcon: ImageView
-        val textViewForecastTemperature: TextView
-        val textViewForecastDescription: TextView
-
-        init {
-            textViewForecastDayOfWeek =
-                itemView.findViewById(R.id.itemTextForecastNumberOfDay)
-            textViewForecastDayAndMonth = itemView.findViewById(R.id.itemTextForecastDay)
-            forecastWeatherIcon =
-                itemView.findViewById(R.id.itemForecastWeatherIcon)
-            textViewForecastTemperature =
-                itemView.findViewById(R.id.itemTextForecastTemperature)
-            textViewForecastDescription =
-                itemView.findViewById(R.id.itemTextForecastDescription)
-        }
+        val textViewForecastDayOfWeek: TextView = itemView.findViewById(R.id.itemTextForecastNumberOfDay)
+        val textViewForecastDayAndMonth: TextView = itemView.findViewById(R.id.itemTextForecastDay)
+        val forecastWeatherIcon: ImageView = itemView.findViewById(R.id.itemForecastWeatherIcon)
+        val textViewForecastTemperature: TextView = itemView.findViewById(R.id.itemTextForecastTemperature)
+        val itemTextViewTempMode: TextView = itemView.findViewById(R.id.itemTextViewTempMode)
+        val textViewForecastDescription: TextView = itemView.findViewById(R.id.itemTextForecastDescription)
     }
-
-
 }

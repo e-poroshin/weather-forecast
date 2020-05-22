@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Weather Forecast</string>
     <string name="enter_the_name_of_the_city">Enter the name of the city</string>
+    <string name="_5_day_weather_forecast">5 day weather forecast</string>
+    <string name="press_to_add_city">Press \'\'+\'\' to add City</string>
+    <string name="current_weather">Current weather</string>
 </resources>

@@ -5,14 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_marginTop="4dp"
-    android:layout_marginLeft="4dp"
+    android:layout_marginLeft="16dp"
     android:layout_marginRight="4dp">
 
     <LinearLayout
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:gravity="center">
 
         <TextView
             android:id="@+id/itemTextForecastNumberOfDay"
@@ -20,13 +20,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textSize="24sp"
-            tools:text="tomorrow" />
+            tools:text="Wed," />
 
         <TextView
             android:id="@+id/itemTextForecastDay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="21sp"
+            android:textSize="18sp"
             tools:text="20 May" />
 
     </LinearLayout>
@@ -39,25 +39,41 @@
         tools:background="@drawable/ic_launcher_background"  />
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/itemTextForecastTemperature"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:layout_marginStart="8dp"
-            android:textSize="24sp"
-            tools:text="15" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/itemTextForecastTemperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                tools:text="15" />
+
+            <TextView
+                android:id="@+id/itemTextViewTempMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textSize="18sp"
+                tools:text="℃" />
+
+        </LinearLayout>
+
 
         <TextView
             android:id="@+id/itemTextForecastDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textSize="21sp"
+            android:textSize="18sp"
             tools:text="Description Weather" />
 
     </LinearLayout>

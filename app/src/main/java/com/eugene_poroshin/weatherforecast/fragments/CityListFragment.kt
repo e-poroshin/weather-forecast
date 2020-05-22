@@ -12,6 +12,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eugene_poroshin.weatherforecast.R
@@ -21,9 +22,11 @@ import com.eugene_poroshin.weatherforecast.repo.database.CityEntity
 import com.eugene_poroshin.weatherforecast.viewmodel.CityViewModel
 import com.eugene_poroshin.weatherforecast.weather.Constants
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import okhttp3.*
-import java.io.IOException
-import java.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 class CityListFragment : Fragment(), EditNameDialogListener {
     private lateinit var toolbar: Toolbar
@@ -31,7 +34,6 @@ class CityListFragment : Fragment(), EditNameDialogListener {
     private lateinit var addCityDialogFragment: AddCityDialogFragment
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CityListAdapter
-    private var cities: List<CityEntity> = ArrayList()
     private lateinit var viewModel: CityViewModel
     private var onOpenFragmentListener: OnOpenFragmentListener? = null
 
@@ -92,9 +94,8 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         recyclerView.layoutManager = LinearLayoutManager(activity)
         viewModel = ViewModelProvider(this).get(CityViewModel::class.java)
         viewModel.allCitiesLiveData.observe(viewLifecycleOwner, Observer { cities ->
-                cities?.let { adapter.setCities(it) }
-
-            })
+            cities?.let { adapter.setCities(it) }
+        })
     }
 
     override fun onFinishEditDialog(inputText: String?) {
@@ -103,43 +104,39 @@ class CityListFragment : Fragment(), EditNameDialogListener {
 
     private fun validateCityName(cityName: String?) {
         val apiKey = Constants.API_KEY
-        val url = String.format(
-            Constants.GET_CURRENT_WEATHER_BY_CITY_NAME_METRIC,
-            cityName,
-            apiKey
-        )
-        Log.d(MY_LOG, url)
-        val request = Request.Builder().url(url).build()
-        val okHttpClient = OkHttpClient()
-        okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                showToast("Connection failed, try again please")
-            }
+        val url = String.format(Constants.GET_CURRENT_WEATHER_BY_CITY_NAME_METRIC, cityName, apiKey)
 
-            @Throws(IOException::class)
-            override fun onResponse(
-                call: Call,
-                response: Response
-            ) {
-                val str = response.body!!.string()
-                when {
-                    str == "{\"cod\":\"404\",\"message\":\"city not found\"}" -> {
-                        showToast("This city does not exist, try again please")
-                    }
-                    str.startsWith("{\"cod\":") -> {
-                        showToast("Adding failed. Please contact the app developer")
-                    }
-                    else -> {
-                        showToast("The City has been successfully added")
-                        viewModel.insert(CityEntity(name = cityName))
-                    }
+        lifecycleScope.launch {
+            val result = getResponse(url)
+            Log.d(MY_LOG, result)
+            when {
+                result == "{\"cod\":\"404\",\"message\":\"city not found\"}" -> {
+                    showToast("This city does not exist, try again please")
+                }
+                result.startsWith("{\"cod\":") -> {
+                    showToast("Adding failed. Please contact the app developer")
+                }
+                else -> {
+                    showToast("The City has been successfully added")
+                    viewModel.insert(CityEntity(name = cityName))
                 }
             }
-        })
+        }
+    }
+
+    private suspend fun getResponse(myURL: String): String {
+        return withContext(Dispatchers.IO) {
+            val request = Request.Builder().url(myURL).build()
+            val okHttpClient = OkHttpClient()
+            val str = okHttpClient.newCall(request).execute().body!!.string()
+            str
+        }
     }
 
     private fun showToast(message: String) {
-        requireActivity().runOnUiThread { Toast.makeText(context, message, Toast.LENGTH_LONG).show() }
+        requireActivity().runOnUiThread {
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onDestroy() {

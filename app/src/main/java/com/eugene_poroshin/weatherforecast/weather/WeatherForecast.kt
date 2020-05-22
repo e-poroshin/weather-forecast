@@ -6,5 +6,6 @@ data class WeatherForecast(
     val date: Date,
     val iconId: String,
     val description: String,
-    val temperature: Double
+    val temperature: Double,
+    var temperatureMode: TemperatureMode = TemperatureMode.CELSIUS
 )

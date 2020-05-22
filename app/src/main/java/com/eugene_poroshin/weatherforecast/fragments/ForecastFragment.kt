@@ -3,27 +3,26 @@ package com.eugene_poroshin.weatherforecast.fragments
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eugene_poroshin.weatherforecast.R
 import com.eugene_poroshin.weatherforecast.adapter.WeatherForecastAdapter
-import com.eugene_poroshin.weatherforecast.weather.Constants
-import com.eugene_poroshin.weatherforecast.weather.WeatherCurrent
-import com.eugene_poroshin.weatherforecast.weather.WeatherForecast
-import com.eugene_poroshin.weatherforecast.weather.WeatherParser
+import com.eugene_poroshin.weatherforecast.weather.*
 import com.squareup.picasso.Picasso
-import okhttp3.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONException
-import java.io.IOException
 import java.text.DecimalFormat
 import java.util.*
 
@@ -42,6 +41,7 @@ class ForecastFragment : Fragment() {
     private var adapter: WeatherForecastAdapter? = null
     private var sPref: SharedPreferences? = null
     private var onOpenFragmentListener: OnOpenFragmentListener? = null
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -93,8 +93,7 @@ class ForecastFragment : Fragment() {
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
-        val sharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(requireActivity())
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
         val tempMode = sharedPreferences.getBoolean("switch", false)
         if (cityName != null) {
             textViewCityName!!.text = cityName
@@ -124,117 +123,74 @@ class ForecastFragment : Fragment() {
     private fun getCurrentWeather(cityName: String, tempMode: Boolean) {
         val apiKey = Constants.API_KEY
         val url: String = if (!tempMode) {
-            String.format(
-                Constants.GET_CURRENT_WEATHER_BY_CITY_NAME_METRIC,
-                cityName,
-                apiKey
-            )
+            String.format(Constants.GET_CURRENT_WEATHER_BY_CITY_NAME_METRIC, cityName, apiKey)
         } else {
-            String.format(
-                Constants.GET_CURRENT_WEATHER_BY_CITY_NAME_IMPERIAL,
-                cityName,
-                apiKey
-            )
+            String.format(Constants.GET_CURRENT_WEATHER_BY_CITY_NAME_IMPERIAL, cityName, apiKey)
         }
-        val request = Request.Builder().url(url).build()
-        val okHttpClient = OkHttpClient()
-        okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                clearWeatherData()
-            }
 
-            @Throws(IOException::class)
-            override fun onResponse(
-                call: Call,
-                response: Response
-            ) {
-                val str = response.body!!.string()
-                val weatherParser = WeatherParser(str)
-                try {
-                    val weatherCurrent = weatherParser.parsedCurrentWeather
-                    showCurrentWeather(weatherCurrent, tempMode)
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                }
+        lifecycleScope.launch {
+            val result = getResponse(url)
+            val weatherParser = WeatherParser(result)
+            try {
+                val weatherCurrent = weatherParser.parsedCurrentWeather
+                showCurrentWeather(weatherCurrent, tempMode)
+            } catch (e: JSONException) {
+                e.printStackTrace()
             }
-        })
+        }
     }
 
     private fun showCurrentWeather(weatherCurrent: WeatherCurrent, tempMode: Boolean) {
-        requireActivity().runOnUiThread {
-            val imageUrl = String.format(
-                Constants.GET_ICON,
-                weatherCurrent.iconId
-            )
-            Picasso.get().load(imageUrl).into(viewWeatherIcon)
-            textViewDescriptionWeather!!.text = weatherCurrent.description
-            textViewTemperature!!.text = DecimalFormat("##.#").format(weatherCurrent.temperature)
-            if (!tempMode) { textViewTempMode!!.text = "℃"
-            } else { textViewTempMode!!.text = "℉"
-            }
+        val imageUrl = String.format(
+            Constants.GET_ICON,
+            weatherCurrent.iconId
+        )
+        //TODO change to Koin
+        Picasso.get().load(imageUrl).into(viewWeatherIcon)
+        textViewDescriptionWeather!!.text = weatherCurrent.description
+        textViewTemperature!!.text = DecimalFormat("##.#").format(weatherCurrent.temperature)
+        if (!tempMode) {
+            textViewTempMode!!.text = "℃"
+        } else {
+            textViewTempMode!!.text = "℉"
         }
     }
 
     private fun getForecastWeather(cityName: String, tempMode: Boolean) {
-        val apiKey =
-            Constants.API_KEY_FORECAST
-        val url: String
-        url = if (!tempMode) {
-            String.format(
-                Constants.GET_FORECAST_WEATHER_BY_CITY_NAME_METRIC,
-                cityName,
-                apiKey
-            )
+        val temperatureMode: TemperatureMode
+        val apiKey = Constants.API_KEY_FORECAST
+        var url: String = ""
+        if (!tempMode) {
+            url = String.format(Constants.GET_FORECAST_WEATHER_BY_CITY_NAME_METRIC, cityName, apiKey)
+            temperatureMode = TemperatureMode.CELSIUS
         } else {
-            String.format(
-                Constants.GET_FORECAST_WEATHER_BY_CITY_NAME_IMPERIAL,
-                cityName,
-                apiKey
-            )
+            url = String.format(Constants.GET_FORECAST_WEATHER_BY_CITY_NAME_IMPERIAL, cityName, apiKey)
+            temperatureMode = TemperatureMode.FAHRENHEIT
         }
-        Log.d(MY_LOG, url)
-        val request = Request.Builder().url(url).build()
-        val okHttpClient = OkHttpClient()
-        okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(
-                call: Call,
-                e: IOException
-            ) {
-            }
 
-            @Throws(IOException::class)
-            override fun onResponse(
-                call: Call,
-                response: Response
-            ) {
-                val str = response.body!!.string()
-                val weatherParser = WeatherParser(str)
-                try {
-                    val listWeatherForecast =
-                        weatherParser.parsedListForecastWeather
-                    showForecastWeather(listWeatherForecast)
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                }
+        lifecycleScope.launch {
+            val result = getResponse(url)
+            val weatherParser = WeatherParser(result)
+            try {
+                val listWeatherForecast = weatherParser.parsedListForecastWeather
+                listWeatherForecast[0].temperatureMode = temperatureMode
+                showForecastWeather(listWeatherForecast)
+            } catch (e: JSONException) {
+                e.printStackTrace()
             }
-        })
+        }
     }
 
     private fun showForecastWeather(listWeatherForecasts: MutableList<WeatherForecast>) {
-        requireActivity().runOnUiThread { adapter!!.setForecast(listWeatherForecasts) }
+        adapter!!.setForecast(listWeatherForecasts)
     }
 
-    private fun clearWeatherData() {
-        requireActivity().runOnUiThread {
-            viewWeatherIcon!!.setImageResource(R.drawable.ic_sentiment_dissatisfied_yellow_24dp)
-            textViewTemperature!!.text = ""
-            textViewDescriptionWeather!!.text = ""
-            textViewCityName!!.text = "No connection"
-            Toast.makeText(
-                context,
-                "Connection failed, try again please",
-                Toast.LENGTH_LONG
-            ).show()
+    private suspend fun getResponse(myURL: String): String {
+        return withContext(Dispatchers.IO) {
+            val request = Request.Builder().url(myURL).build()
+            val okHttpClient = OkHttpClient()
+            val str = okHttpClient.newCall(request).execute().body!!.string()
+            str
         }
     }
 
@@ -257,7 +213,6 @@ class ForecastFragment : Fragment() {
     }
 
     companion object {
-        private const val MY_LOG = "MY_LOG"
         fun newInstance(cityName: String?): ForecastFragment {
             val forecastFragment = ForecastFragment()
             val bundle = Bundle()

@@ -1,5 +1,6 @@
 package com.eugene_poroshin.weatherforecast.weather
 
+import androidx.preference.PreferenceManager
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
