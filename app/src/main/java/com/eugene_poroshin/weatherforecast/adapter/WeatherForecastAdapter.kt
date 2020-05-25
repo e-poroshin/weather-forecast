@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import coil.api.load
 import com.eugene_poroshin.weatherforecast.R
 import com.eugene_poroshin.weatherforecast.weather.Constants
 import com.eugene_poroshin.weatherforecast.weather.TemperatureMode
 import com.eugene_poroshin.weatherforecast.weather.WeatherForecast
-import com.squareup.picasso.Picasso
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -53,8 +53,7 @@ class WeatherForecastAdapter(forecast: List<WeatherForecast>) :
             Constants.GET_ICON,
             forecastList[position].iconId
         )
-        //TODO change to Koin
-        Picasso.get().load(imageUrl).into(holder.forecastWeatherIcon)
+        holder.forecastWeatherIcon.load(imageUrl)
         holder.textViewForecastTemperature.text =
             DecimalFormat("##.#").format(forecastList[position].temperature)
         if (forecastList[0].temperatureMode == TemperatureMode.CELSIUS) {
@@ -76,11 +75,14 @@ class WeatherForecastAdapter(forecast: List<WeatherForecast>) :
 
     inner class ForecastViewHolder(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
-        val textViewForecastDayOfWeek: TextView = itemView.findViewById(R.id.itemTextForecastNumberOfDay)
+        val textViewForecastDayOfWeek: TextView =
+            itemView.findViewById(R.id.itemTextForecastNumberOfDay)
         val textViewForecastDayAndMonth: TextView = itemView.findViewById(R.id.itemTextForecastDay)
         val forecastWeatherIcon: ImageView = itemView.findViewById(R.id.itemForecastWeatherIcon)
-        val textViewForecastTemperature: TextView = itemView.findViewById(R.id.itemTextForecastTemperature)
+        val textViewForecastTemperature: TextView =
+            itemView.findViewById(R.id.itemTextForecastTemperature)
         val itemTextViewTempMode: TextView = itemView.findViewById(R.id.itemTextViewTempMode)
-        val textViewForecastDescription: TextView = itemView.findViewById(R.id.itemTextForecastDescription)
+        val textViewForecastDescription: TextView =
+            itemView.findViewById(R.id.itemTextForecastDescription)
     }
 }

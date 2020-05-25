@@ -13,10 +13,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil.api.load
 import com.eugene_poroshin.weatherforecast.R
 import com.eugene_poroshin.weatherforecast.adapter.WeatherForecastAdapter
 import com.eugene_poroshin.weatherforecast.weather.*
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,7 +29,7 @@ import java.util.*
 class ForecastFragment : Fragment() {
 
     private val SAVED_CITY = "SAVED_CITY"
-    private var viewWeatherIcon: ImageView? = null
+    private lateinit var viewWeatherIcon: ImageView
     private var textViewTemperature: TextView? = null
     private var textViewTempMode: TextView? = null
     private var textViewDescriptionWeather: TextView? = null
@@ -145,8 +145,7 @@ class ForecastFragment : Fragment() {
             Constants.GET_ICON,
             weatherCurrent.iconId
         )
-        //TODO change to Koin
-        Picasso.get().load(imageUrl).into(viewWeatherIcon)
+        viewWeatherIcon.load(imageUrl)
         textViewDescriptionWeather!!.text = weatherCurrent.description
         textViewTemperature!!.text = DecimalFormat("##.#").format(weatherCurrent.temperature)
         if (!tempMode) {
@@ -159,12 +158,17 @@ class ForecastFragment : Fragment() {
     private fun getForecastWeather(cityName: String, tempMode: Boolean) {
         val temperatureMode: TemperatureMode
         val apiKey = Constants.API_KEY_FORECAST
-        var url: String = ""
+        val url: String
         if (!tempMode) {
-            url = String.format(Constants.GET_FORECAST_WEATHER_BY_CITY_NAME_METRIC, cityName, apiKey)
+            url =
+                String.format(Constants.GET_FORECAST_WEATHER_BY_CITY_NAME_METRIC, cityName, apiKey)
             temperatureMode = TemperatureMode.CELSIUS
         } else {
-            url = String.format(Constants.GET_FORECAST_WEATHER_BY_CITY_NAME_IMPERIAL, cityName, apiKey)
+            url = String.format(
+                Constants.GET_FORECAST_WEATHER_BY_CITY_NAME_IMPERIAL,
+                cityName,
+                apiKey
+            )
             temperatureMode = TemperatureMode.FAHRENHEIT
         }
 
