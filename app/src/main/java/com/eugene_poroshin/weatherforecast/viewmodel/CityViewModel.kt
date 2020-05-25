@@ -16,7 +16,7 @@ class CityViewModel(application: Application) : AndroidViewModel(application) {
     val allCitiesLiveData: LiveData<List<CityEntity>>
 
     init {
-        val cityDao = CityDatabase.getDatabase(application).cityDao()
+        val cityDao = CityDatabase.getDatabase(application, viewModelScope).cityDao()
         repository = Repository(cityDao)
         allCitiesLiveData = repository.allCities
     }
