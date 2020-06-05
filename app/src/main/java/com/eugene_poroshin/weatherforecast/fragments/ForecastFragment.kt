@@ -39,9 +39,9 @@ class ForecastFragment : Fragment() {
     private val listWeatherForecast: MutableList<WeatherForecast> = ArrayList()
     private var recyclerView: RecyclerView? = null
     private var adapter: WeatherForecastAdapter? = null
-    private var sPref: SharedPreferences? = null
+    private var sPrefGetCity: SharedPreferences? = null
+    private lateinit var sPrefTempMode: SharedPreferences
     private var onOpenFragmentListener: OnOpenFragmentListener? = null
-    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -60,6 +60,7 @@ class ForecastFragment : Fragment() {
             saveCityName(cityName)
         }
         setHasOptionsMenu(true)
+        sPrefTempMode = PreferenceManager.getDefaultSharedPreferences(requireActivity())
     }
 
     override fun onCreateView(
@@ -93,8 +94,7 @@ class ForecastFragment : Fragment() {
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
-        val tempMode = sharedPreferences.getBoolean("switch", false)
+        val tempMode = sPrefTempMode.getBoolean("switch", false)
         if (cityName != null) {
             textViewCityName!!.text = cityName
             getCurrentWeather(cityName!!, tempMode)
@@ -199,16 +199,16 @@ class ForecastFragment : Fragment() {
     }
 
     private fun saveCityName(cityName: String?) {
-        sPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
-        val editor = sPref?.edit()
+        sPrefGetCity = requireActivity().getPreferences(Context.MODE_PRIVATE)
+        val editor = sPrefGetCity?.edit()
         editor!!.putString(SAVED_CITY, cityName)
         editor.apply()
     }
 
     private val savedCityName: String?
         get() {
-            sPref = requireActivity().getPreferences(Context.MODE_PRIVATE)
-            return sPref?.getString(SAVED_CITY, "NO_SAVED")
+            sPrefGetCity = requireActivity().getPreferences(Context.MODE_PRIVATE)
+            return sPrefGetCity?.getString(SAVED_CITY, "NO_SAVED")
         }
 
     override fun onDestroy() {

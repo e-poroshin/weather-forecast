@@ -33,5 +33,4 @@ class CityViewModel(application: Application) : AndroidViewModel(application) {
         repository.delete(city)
     }
 
-
 }

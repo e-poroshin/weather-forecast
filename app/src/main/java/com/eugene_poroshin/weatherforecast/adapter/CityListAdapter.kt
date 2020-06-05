@@ -10,9 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eugene_poroshin.weatherforecast.R
 import com.eugene_poroshin.weatherforecast.fragments.FragmentCommunicator
 import com.eugene_poroshin.weatherforecast.repo.database.CityEntity
-import java.util.*
 
-class CityListAdapter internal constructor(
+class CityListAdapter(
     context: Context,
     communication: FragmentCommunicator
 ) : RecyclerView.Adapter<CityListAdapter.CityViewHolder>() {

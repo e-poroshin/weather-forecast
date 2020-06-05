@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eugene_poroshin.weatherforecast.R
 import com.eugene_poroshin.weatherforecast.adapter.CityListAdapter
+import com.eugene_poroshin.weatherforecast.di.App
 import com.eugene_poroshin.weatherforecast.fragments.AddCityDialogFragment.EditNameDialogListener
 import com.eugene_poroshin.weatherforecast.repo.database.CityEntity
 import com.eugene_poroshin.weatherforecast.viewmodel.CityViewModel
@@ -27,14 +28,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import javax.inject.Inject
 
 class CityListFragment : Fragment(), EditNameDialogListener {
+
+    @Inject
+    lateinit var viewModel: CityViewModel
+
     private lateinit var toolbar: Toolbar
     private lateinit var fabAddCity: FloatingActionButton
     private lateinit var addCityDialogFragment: AddCityDialogFragment
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CityListAdapter
-    private lateinit var viewModel: CityViewModel
+
     private var onOpenFragmentListener: OnOpenFragmentListener? = null
 
     override fun onAttach(context: Context) {
@@ -53,6 +59,9 @@ class CityListFragment : Fragment(), EditNameDialogListener {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+////////////////////////////////////////////////////////////////////
+        App.appComponent.inject(this)
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
@@ -92,7 +101,9 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         adapter = CityListAdapter(requireContext(), communicator)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
-        viewModel = ViewModelProvider(this).get(CityViewModel::class.java)
+
+////////////////////////////////////////////////////////////////////
+//        viewModel = ViewModelProvider(this).get(CityViewModel::class.java)
         viewModel.allCitiesLiveData.observe(viewLifecycleOwner, Observer { cities ->
             cities?.let { adapter.setCities(it) }
         })

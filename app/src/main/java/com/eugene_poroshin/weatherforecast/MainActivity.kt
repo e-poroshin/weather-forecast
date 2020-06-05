@@ -8,6 +8,7 @@ import com.eugene_poroshin.weatherforecast.fragments.OnOpenFragmentListener
 import com.eugene_poroshin.weatherforecast.fragments.TempModePreferenceFragment
 
 class MainActivity : AppCompatActivity(), OnOpenFragmentListener {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
