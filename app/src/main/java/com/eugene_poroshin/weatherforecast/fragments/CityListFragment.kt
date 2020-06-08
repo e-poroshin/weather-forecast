@@ -61,7 +61,7 @@ class CityListFragment : Fragment(), EditNameDialogListener {
     override fun onCreate(savedInstanceState: Bundle?) {
 
 ////////////////////////////////////////////////////////////////////
-        App.appComponent.inject(this)
+        App.appComponent.fragmentSubComponentBuilder().whith(this).build().inject(this)
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
@@ -103,7 +103,7 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
 ////////////////////////////////////////////////////////////////////
-//        viewModel = ViewModelProvider(this).get(CityViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(CityViewModel::class.java)
         viewModel.allCitiesLiveData.observe(viewLifecycleOwner, Observer { cities ->
             cities?.let { adapter.setCities(it) }
         })

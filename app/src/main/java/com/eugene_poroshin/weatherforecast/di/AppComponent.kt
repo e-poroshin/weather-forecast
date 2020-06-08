@@ -1,13 +1,24 @@
 package com.eugene_poroshin.weatherforecast.di
 
-import com.eugene_poroshin.weatherforecast.fragments.CityListFragment
+import android.app.Application
+import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
 
 
-@Component(modules = [ApplicationModule::class, ViewModelModule::class])
+@Component(modules = [FragmentModule::class])
 @Singleton
 interface AppComponent {
 
-    fun inject(fragment: CityListFragment)
+    @Component.Builder
+    interface Builder {
+
+        @BindsInstance
+        fun whithApplication(application: Application): Builder
+
+        fun build(): AppComponent
+    }
+
+    fun viewModelSubComponentBuilder(): ViewModelSubComponent.Builder
+    fun fragmentSubComponentBuilder(): FragmentSubComponent.Builder
 }

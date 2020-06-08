@@ -6,6 +6,7 @@ class App : Application() {
 
     companion object {
         lateinit var appComponent: AppComponent
+        lateinit var viewModelSubComponent: ViewModelSubComponent
     }
 
     override fun onCreate() {
@@ -14,6 +15,21 @@ class App : Application() {
     }
 
     private fun initializeDagger() {
-        appComponent = DaggerAppComponent.create()
+        appComponent = DaggerAppComponent
+            .builder()
+            .whithApplication(this)
+            .build()
+
+        viewModelSubComponent = appComponent
+            .viewModelSubComponentBuilder()
+            .build()
+    }
+
+    fun getAppComponent(): AppComponent {
+        return appComponent
+    }
+
+    fun getViewModelSubComponent(): ViewModelSubComponent {
+        return viewModelSubComponent
     }
 }
