@@ -14,7 +14,7 @@ interface AppComponent {
     interface Builder {
 
         @BindsInstance
-        fun whithApplication(application: Application): Builder
+        fun withApplication(application: Application): Builder
 
         fun build(): AppComponent
     }

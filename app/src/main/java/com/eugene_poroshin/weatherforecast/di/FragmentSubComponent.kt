@@ -12,7 +12,7 @@ interface FragmentSubComponent {
     interface Builder {
 
         @BindsInstance
-        fun whith(fragment: Fragment): Builder
+        fun with(fragment: Fragment): Builder
         fun build(): FragmentSubComponent
     }
 

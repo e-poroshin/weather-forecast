@@ -1,2 +1,3 @@
 rootProject.name='Weather forecast'
 include ':app'
+include ':lib_myHttp'

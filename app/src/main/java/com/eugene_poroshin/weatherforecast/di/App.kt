@@ -17,7 +17,7 @@ class App : Application() {
     private fun initializeDagger() {
         appComponent = DaggerAppComponent
             .builder()
-            .whithApplication(this)
+            .withApplication(this)
             .build()
 
         viewModelSubComponent = appComponent

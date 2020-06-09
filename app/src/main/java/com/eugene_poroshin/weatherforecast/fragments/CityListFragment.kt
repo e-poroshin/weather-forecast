@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -61,7 +60,7 @@ class CityListFragment : Fragment(), EditNameDialogListener {
     override fun onCreate(savedInstanceState: Bundle?) {
 
 ////////////////////////////////////////////////////////////////////
-        App.appComponent.fragmentSubComponentBuilder().whith(this).build().inject(this)
+        App.appComponent.fragmentSubComponentBuilder().with(this).build().inject(this)
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
@@ -103,7 +102,7 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
 ////////////////////////////////////////////////////////////////////
-        viewModel = ViewModelProvider(this).get(CityViewModel::class.java)
+//        viewModel = ViewModelProvider(this).get(CityViewModel::class.java)
         viewModel.allCitiesLiveData.observe(viewLifecycleOwner, Observer { cities ->
             cities?.let { adapter.setCities(it) }
         })
