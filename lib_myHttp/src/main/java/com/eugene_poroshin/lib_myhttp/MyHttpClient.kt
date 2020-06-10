@@ -5,20 +5,22 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 
-class MyOkHttp() : Call.Factory {
+class MyHttpClient() {
 
     lateinit var connection: HttpURLConnection
     lateinit var thread: Thread
     lateinit var exception: Exception
 
-    override fun newCall(request: Request): Call {
+    fun newCall(request: Request): Response? {
+        val response = Response()
         val url = request.url
         connection = url?.openConnection() as HttpURLConnection
 
-        var builder: StringBuilder? = null
+        val builder: StringBuilder
         var reader: BufferedReader? = null
         try {
             connection.requestMethod = request.method
+            connection.readTimeout = 10000
             connection.connect()
             val input = InputStreamReader(connection.inputStream)
             reader = BufferedReader(input)
@@ -28,13 +30,20 @@ class MyOkHttp() : Call.Factory {
                 builder.append(line + "\n")
                 line = reader.readLine()
             }
-            return builder.toString()
-        } catch (e: IOException) {
-            e.printStackTrace()
+            val body: String = builder.toString()
+            response.body = body
+//            val codeStart: String? = body.substringAfterLast("cod\":")
+//            val codeResult: Int? = codeStart?.subSequence(0, 3) as Int
+//            response.code = codeResult
+            response.status = Status.SUCCESS
+            return response
+        } catch (exception: IOException) {
+            exception.printStackTrace()
+            response.status = Status.ERROR
         } finally {
             connection.disconnect()
             reader?.close()
         }
-        return builder.toString()
+        return response
     }
 }

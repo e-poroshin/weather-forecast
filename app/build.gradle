@@ -92,4 +92,5 @@ dependencies {
     //support библиотека
     implementation 'com.google.dagger:dagger-android-support:2.15'
 
+    implementation project(":lib_myHttp")
 }

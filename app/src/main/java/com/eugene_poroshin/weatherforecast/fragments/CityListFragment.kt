@@ -14,6 +14,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.eugene_poroshin.lib_myhttp.MyHttpClient
+import com.eugene_poroshin.lib_myhttp.Request
 import com.eugene_poroshin.weatherforecast.R
 import com.eugene_poroshin.weatherforecast.adapter.CityListAdapter
 import com.eugene_poroshin.weatherforecast.di.App
@@ -25,8 +27,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import java.net.URL
 import javax.inject.Inject
 
 class CityListFragment : Fragment(), EditNameDialogListener {
@@ -102,7 +103,6 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
 ////////////////////////////////////////////////////////////////////
-//        viewModel = ViewModelProvider(this).get(CityViewModel::class.java)
         viewModel.allCitiesLiveData.observe(viewLifecycleOwner, Observer { cities ->
             cities?.let { adapter.setCities(it) }
         })
@@ -117,29 +117,33 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         val url = String.format(Constants.GET_CURRENT_WEATHER_BY_CITY_NAME_METRIC, cityName, apiKey)
 
         lifecycleScope.launch {
-            val result = getResponse(url)
-            Log.d(MY_LOG, result)
-            when {
-                result == "{\"cod\":\"404\",\"message\":\"city not found\"}" -> {
-                    showToast("This city does not exist, try again please")
-                }
-                result.startsWith("{\"cod\":") -> {
-                    showToast("Adding failed. Please contact the app developer")
-                }
-                else -> {
-                    showToast("The City has been successfully added")
-                    viewModel.insert(CityEntity(name = cityName))
+            val result: String? = getResponse(url)
+            if (result != null) {
+                Log.d(MY_LOG, result)
+                when {
+                    result == "{\"cod\":\"404\",\"message\":\"city not found\"}" -> {
+                        showToast("This city does not exist, try again please")
+                    }
+                    result.startsWith("{\"cod\":") -> {
+                        showToast("Adding failed. Please contact the app developer")
+                    }
+                    else -> {
+                        showToast("The City has been successfully added")
+                        viewModel.insert(CityEntity(name = cityName))
+                    }
                 }
             }
         }
     }
 
-    private suspend fun getResponse(myURL: String): String {
+    private suspend fun getResponse(myURL: String?): String? {
         return withContext(Dispatchers.IO) {
-            val request = Request.Builder().url(myURL).build()
-            val okHttpClient = OkHttpClient()
-            val str = okHttpClient.newCall(request).execute().body!!.string()
-            str
+            val url = URL(myURL)
+            val request = Request(url)
+            val myHttpClient = MyHttpClient()
+            val response = myHttpClient.newCall(request)
+            val body = response?.body
+            body
         }
     }
 
