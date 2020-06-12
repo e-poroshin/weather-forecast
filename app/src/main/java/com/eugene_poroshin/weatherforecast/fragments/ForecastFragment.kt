@@ -3,6 +3,7 @@ package com.eugene_poroshin.weatherforecast.fragments
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -130,6 +131,8 @@ class ForecastFragment : Fragment() {
 
         lifecycleScope.launch {
             val result = getResponse(url)
+            
+            Log.d(MY_LOG, result)
             val weatherParser = WeatherParser(result)
             try {
                 val weatherCurrent = weatherParser.parsedCurrentWeather
@@ -193,7 +196,9 @@ class ForecastFragment : Fragment() {
         return withContext(Dispatchers.IO) {
             val request = Request.Builder().url(myURL).build()
             val okHttpClient = OkHttpClient()
-            val str = okHttpClient.newCall(request).execute().body!!.string()
+            val response = okHttpClient.newCall(request).execute()
+            val code = response.code
+            val str = response.body!!.string() + code
             str
         }
     }
@@ -217,6 +222,7 @@ class ForecastFragment : Fragment() {
     }
 
     companion object {
+        private const val MY_LOG = "MY_LOG"
         fun newInstance(cityName: String?): ForecastFragment {
             val forecastFragment = ForecastFragment()
             val bundle = Bundle()

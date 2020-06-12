@@ -1,7 +1,6 @@
-package com.eugene_poroshin.lib_myhttp
+package com.eugene_poroshin.myhttp
 
 import java.io.BufferedReader
-import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 
@@ -9,7 +8,7 @@ class MyHttpClient() {
 
     lateinit var connection: HttpURLConnection
     lateinit var thread: Thread
-    lateinit var exception: Exception
+    lateinit var exception: MyException
 
     fun newCall(request: Request): Response? {
         val response = Response()
@@ -32,14 +31,13 @@ class MyHttpClient() {
             }
             val body: String = builder.toString()
             response.body = body
-//            val codeStart: String? = body.substringAfterLast("cod\":")
-//            val codeResult: Int? = codeStart?.subSequence(0, 3) as Int
-//            response.code = codeResult
+            response.code = 200
             response.status = Status.SUCCESS
             return response
-        } catch (exception: IOException) {
-            exception.printStackTrace()
+        } catch (exception: MyException) {
+            exception.message
             response.status = Status.ERROR
+//            response.code =
         } finally {
             connection.disconnect()
             reader?.close()

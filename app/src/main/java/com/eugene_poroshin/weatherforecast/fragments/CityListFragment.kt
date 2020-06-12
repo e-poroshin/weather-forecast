@@ -14,8 +14,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.eugene_poroshin.lib_myhttp.MyHttpClient
-import com.eugene_poroshin.lib_myhttp.Request
+import com.eugene_poroshin.myhttp.MyHttpClient
+import com.eugene_poroshin.myhttp.Request
 import com.eugene_poroshin.weatherforecast.R
 import com.eugene_poroshin.weatherforecast.adapter.CityListAdapter
 import com.eugene_poroshin.weatherforecast.di.App
@@ -116,6 +116,7 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         val apiKey = Constants.API_KEY
         val url = String.format(Constants.GET_CURRENT_WEATHER_BY_CITY_NAME_METRIC, cityName, apiKey)
 
+        Log.d(MY_LOG, url)
         lifecycleScope.launch {
             val result: String? = getResponse(url)
             if (result != null) {
