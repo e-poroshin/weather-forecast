@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eugene_poroshin.myhttp.MyHttpClient
 import com.eugene_poroshin.myhttp.Request
+import com.eugene_poroshin.myhttp.Response
 import com.eugene_poroshin.weatherforecast.R
 import com.eugene_poroshin.weatherforecast.adapter.CityListAdapter
 import com.eugene_poroshin.weatherforecast.di.App
@@ -27,6 +28,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
 
@@ -118,33 +120,31 @@ class CityListFragment : Fragment(), EditNameDialogListener {
 
         Log.d(MY_LOG, url)
         lifecycleScope.launch {
-            val result: String? = getResponse(url)
-            if (result != null) {
-                Log.d(MY_LOG, result)
-                when {
-                    result == "{\"cod\":\"404\",\"message\":\"city not found\"}" -> {
-                        showToast("This city does not exist, try again please")
-                    }
-                    result.startsWith("{\"cod\":") -> {
-                        showToast("Adding failed. Please contact the app developer")
-                    }
-                    else -> {
+            val response = getResponse(url)
+            val body = response?.body
+
+            if (response != null) {
+//                Log.d(MY_LOG, body)
+                when (response.code) {
+                    HttpURLConnection.HTTP_OK -> {
                         showToast("The City has been successfully added")
                         viewModel.insert(CityEntity(name = cityName))
+                    }
+                    else -> {
+                        showToast("Something went wrong")
                     }
                 }
             }
         }
     }
 
-    private suspend fun getResponse(myURL: String?): String? {
+    private suspend fun getResponse(myURL: String?): Response? {
         return withContext(Dispatchers.IO) {
             val url = URL(myURL)
             val request = Request(url)
             val myHttpClient = MyHttpClient()
             val response = myHttpClient.newCall(request)
-            val body = response?.body
-            body
+            response
         }
     }
 

@@ -7,6 +7,4 @@ class Request(
     val method: String = "GET",
     val headers: String = "",
     val body: String? = null
-) {
-
-}
+)
