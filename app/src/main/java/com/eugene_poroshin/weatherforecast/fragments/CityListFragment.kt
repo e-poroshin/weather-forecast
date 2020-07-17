@@ -1,6 +1,8 @@
 package com.eugene_poroshin.weatherforecast.fragments
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,6 +14,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eugene_poroshin.myhttp.MyHttpClient
@@ -31,6 +34,7 @@ import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
+
 
 class CityListFragment : Fragment(), EditNameDialogListener {
 
@@ -57,6 +61,10 @@ class CityListFragment : Fragment(), EditNameDialogListener {
             if (onOpenFragmentListener != null) {
                 onOpenFragmentListener!!.onOpenForecastFragmentByCityName(cityName)
             }
+        }
+
+        override fun onItemClickToDelete(cityEntity: CityEntity) {
+            viewModel.delete(cityEntity)
         }
     }
 
@@ -108,6 +116,73 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         viewModel.allCitiesLiveData.observe(viewLifecycleOwner, Observer { cities ->
             cities?.let { adapter.setCities(it) }
         })
+
+        val touchHelperCallback: ItemTouchHelper.SimpleCallback =
+            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                private val background =
+                    ColorDrawable(resources.getColor(R.color.deleteBackground))
+
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    Toast.makeText(requireActivity(), "on Move", Toast.LENGTH_SHORT).show()
+                    return false
+                }
+
+                override fun onSwiped(
+                    viewHolder: RecyclerView.ViewHolder,
+                    direction: Int
+                ) {
+                    adapter.showMenu(viewHolder.adapterPosition)
+                    Toast.makeText(requireActivity(), "onSwiped", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onChildDraw(
+                    canvas: Canvas,
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    dX: Float,
+                    dY: Float,
+                    actionState: Int,
+                    isCurrentlyActive: Boolean
+                ) {
+                    super.onChildDraw(
+                        canvas,
+                        recyclerView,
+                        viewHolder,
+                        dX,
+                        dY,
+                        actionState,
+                        isCurrentlyActive
+                    )
+                    val itemView = viewHolder.itemView
+                    if (dX > 0) {
+                        background.setBounds(
+                            itemView.left,
+                            itemView.top,
+                            itemView.left + dX.toInt(),
+                            itemView.bottom
+                        )
+                    } else if (dX < 0) {
+                        background.setBounds(
+                            itemView.right + dX.toInt(),
+                            itemView.top,
+                            itemView.right,
+                            itemView.bottom
+                        )
+                    }  else {
+                        background.setBounds(0, 0, 0, 0)
+                    }
+                    background.draw(canvas)
+                }
+            }
+        val itemTouchHelper = ItemTouchHelper(touchHelperCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+
+        recyclerView.setOnScrollChangeListener { _, _, _, _, _ -> adapter.closeMenu() }
+
     }
 
     override fun onFinishEditDialog(inputText: String?) {

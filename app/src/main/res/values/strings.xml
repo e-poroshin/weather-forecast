@@ -4,4 +4,5 @@
     <string name="_5_day_weather_forecast">5 day weather forecast</string>
     <string name="press_to_add_city">Press \'\'+\'\' to add City</string>
     <string name="current_weather">Current weather</string>
+    <string name="remove_city">REMOVE CITY</string>
 </resources>

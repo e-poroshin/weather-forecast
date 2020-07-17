@@ -5,4 +5,6 @@
     <color name="colorAccent">#E96E50</color>
     <color name="colorBackground">#D0F0FF</color>
     <color name="colorText">#E96E50</color>
+    <color name="colorTextSecondary">#808080</color>
+    <color name="deleteBackground">#E53935</color>
 </resources>

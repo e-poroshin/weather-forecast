@@ -14,6 +14,6 @@ interface CityDao {
     @Delete
     suspend fun delete(city: CityEntity)
 
-    @Query("SELECT * FROM cities ORDER BY name ASC")
+    @Query("SELECT * FROM cities")
     fun getAllCities(): LiveData<List<CityEntity>>
 }
