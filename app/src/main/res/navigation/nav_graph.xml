@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/forecastFragment">
+
+    <fragment
+        android:id="@+id/forecastFragment"
+        android:name="com.eugene_poroshin.weatherforecast.fragments.ForecastFragment"
+        android:label="ForecastFragment" >
+        <action
+            android:id="@+id/action_forecastFragment_to_tempModePreferenceFragment"
+            app:destination="@id/tempModePreferenceFragment" />
+        <action
+            android:id="@+id/action_forecastFragment_to_cityListFragment"
+            app:destination="@id/cityListFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@+id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cityListFragment"
+        android:name="com.eugene_poroshin.weatherforecast.fragments.CityListFragment"
+        android:label="CityListFragment" >
+        <action
+            android:id="@+id/action_cityListFragment_to_addCityDialogFragment"
+            app:destination="@id/addCityDialogFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tempModePreferenceFragment"
+        android:name="com.eugene_poroshin.weatherforecast.fragments.TempModePreferenceFragment"
+        android:label="TempModePreferenceFragment" />
+
+    <fragment
+        android:id="@+id/addCityDialogFragment"
+        android:name="com.eugene_poroshin.weatherforecast.fragments.AddCityDialogFragment"
+        android:label="AddCityDialogFragment" />
+</navigation>

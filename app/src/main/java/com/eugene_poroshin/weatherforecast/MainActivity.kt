@@ -2,61 +2,27 @@ package com.eugene_poroshin.weatherforecast
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.eugene_poroshin.weatherforecast.fragments.CityListFragment
-import com.eugene_poroshin.weatherforecast.fragments.ForecastFragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import com.eugene_poroshin.weatherforecast.fragments.OnOpenFragmentListener
-import com.eugene_poroshin.weatherforecast.fragments.TempModePreferenceFragment
 
 class MainActivity : AppCompatActivity(), OnOpenFragmentListener {
+
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        onOpenForecastFragment()
-    }
-
-    override fun onOpenForecastFragment() {
-        supportFragmentManager
-            .beginTransaction()
-            .replace(
-                R.id.fragmentContainer,
-                ForecastFragment(),
-                ForecastFragment::class.java.simpleName
-            )
-            .commit()
-    }
-
-    override fun onOpenForecastFragmentByCityName(newCityName: String?) {
-        supportFragmentManager
-            .beginTransaction()
-            .replace(
-                R.id.fragmentContainer,
-                ForecastFragment.newInstance(newCityName),
-                ForecastFragment::class.java.simpleName
-            )
-            .commit()
+        val host: NavHostFragment = supportFragmentManager
+            .findFragmentById(R.id.my_nav_host_fragment) as NavHostFragment? ?: return
+        navController = host.navController
     }
 
     override fun onOpenCityListFragment() {
-        supportFragmentManager
-            .beginTransaction()
-            .replace(
-                R.id.fragmentContainer,
-                CityListFragment.newInstance(),
-                CityListFragment::class.java.simpleName
-            )
-            .commit()
+        navController.navigate(R.id.cityListFragment)
     }
 
     override fun onOpenTempModePreferenceFragment() {
-        supportFragmentManager
-            .beginTransaction()
-            .replace(
-                R.id.fragmentContainer,
-                TempModePreferenceFragment(),
-                TempModePreferenceFragment::class.java.simpleName
-            )
-            .addToBackStack(null)
-            .commit()
+        navController.navigate(R.id.tempModePreferenceFragment)
     }
 }

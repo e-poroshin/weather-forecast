@@ -1,6 +1,7 @@
 package com.eugene_poroshin.weatherforecast.fragments
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -41,12 +42,13 @@ class CityListFragment : Fragment(), EditNameDialogListener {
     @Inject
     lateinit var viewModel: CityViewModel
 
+    private val SAVED_CITY = "SAVED_CITY"
+    private var sPrefGetCity: SharedPreferences? = null
     private lateinit var toolbar: Toolbar
     private lateinit var fabAddCity: FloatingActionButton
     private lateinit var addCityDialogFragment: AddCityDialogFragment
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CityListAdapter
-
     private var onOpenFragmentListener: OnOpenFragmentListener? = null
 
     override fun onAttach(context: Context) {
@@ -58,9 +60,8 @@ class CityListFragment : Fragment(), EditNameDialogListener {
 
     private val communicator: FragmentCommunicator = object : FragmentCommunicator {
         override fun onItemClickListener(cityName: String?) {
-            if (onOpenFragmentListener != null) {
-                onOpenFragmentListener!!.onOpenForecastFragmentByCityName(cityName)
-            }
+            saveCityName(cityName)
+            requireActivity().onBackPressed()
         }
 
         override fun onItemClickToDelete(cityEntity: CityEntity) {
@@ -69,8 +70,6 @@ class CityListFragment : Fragment(), EditNameDialogListener {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
-////////////////////////////////////////////////////////////////////
         App.appComponent.fragmentSubComponentBuilder().with(this).build().inject(this)
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -97,9 +96,7 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         super.onViewCreated(view, savedInstanceState)
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
         toolbar.title = "Choose a City"
-        toolbar.setNavigationOnClickListener {
-            onOpenFragmentListener!!.onOpenForecastFragment()
-        }
+        toolbar.setNavigationOnClickListener { requireActivity().onBackPressed() }
         fabAddCity.setOnClickListener {
             addCityDialogFragment = AddCityDialogFragment()
             addCityDialogFragment.setTargetFragment(this@CityListFragment, 1)
@@ -112,7 +109,6 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
-////////////////////////////////////////////////////////////////////
         viewModel.allCitiesLiveData.observe(viewLifecycleOwner, Observer { cities ->
             cities?.let { adapter.setCities(it) }
         })
@@ -172,7 +168,7 @@ class CityListFragment : Fragment(), EditNameDialogListener {
                             itemView.right,
                             itemView.bottom
                         )
-                    }  else {
+                    } else {
                         background.setBounds(0, 0, 0, 0)
                     }
                     background.draw(canvas)
@@ -180,9 +176,7 @@ class CityListFragment : Fragment(), EditNameDialogListener {
             }
         val itemTouchHelper = ItemTouchHelper(touchHelperCallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
-
         recyclerView.setOnScrollChangeListener { _, _, _, _, _ -> adapter.closeMenu() }
-
     }
 
     override fun onFinishEditDialog(inputText: String?) {
@@ -196,8 +190,7 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         Log.d(MY_LOG, url)
         lifecycleScope.launch {
             val response = getResponse(url)
-            val body = response?.body
-
+//            val body = response?.body
             if (response != null) {
 //                Log.d(MY_LOG, body)
                 when (response.code) {
@@ -229,6 +222,13 @@ class CityListFragment : Fragment(), EditNameDialogListener {
         }
     }
 
+    private fun saveCityName(cityName: String?) {
+        sPrefGetCity = requireActivity().getPreferences(Context.MODE_PRIVATE)
+        val editor = sPrefGetCity?.edit()
+        editor!!.putString(SAVED_CITY, cityName)
+        editor.apply()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         onOpenFragmentListener = null
@@ -236,8 +236,5 @@ class CityListFragment : Fragment(), EditNameDialogListener {
 
     companion object {
         private const val MY_LOG = "MY_LOG"
-        fun newInstance(): CityListFragment {
-            return CityListFragment()
-        }
     }
 }

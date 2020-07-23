@@ -53,13 +53,7 @@ class ForecastFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedCityName != "NO_SAVED") {
-            cityName = savedCityName
-        }
-        if (arguments != null) {
-            cityName = requireArguments().getString("CITY_NAME")
-            saveCityName(cityName)
-        }
+        Log.d(MY_LOG, "onCreate")
         setHasOptionsMenu(true)
         sPrefTempMode = PreferenceManager.getDefaultSharedPreferences(requireActivity())
     }
@@ -70,6 +64,9 @@ class ForecastFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_forecast, container, false)
+        if (savedCityName != "NO_SAVED") {
+            cityName = savedCityName
+        }
         viewWeatherIcon = view.findViewById(R.id.viewWeatherIcon)
         textViewTemperature = view.findViewById(R.id.textViewTemperature)
         textViewTempMode = view.findViewById(R.id.textViewTempMode)
@@ -87,6 +84,7 @@ class ForecastFragment : Fragment() {
         recyclerView?.adapter = adapter
         toolbar = view.findViewById(R.id.my_toolbar)
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
+        Log.d(MY_LOG, "onCreateView")
         return view
     }
 
@@ -131,7 +129,7 @@ class ForecastFragment : Fragment() {
 
         lifecycleScope.launch {
             val result = getResponse(url)
-            
+
             Log.d(MY_LOG, result)
             val weatherParser = WeatherParser(result)
             try {
@@ -203,13 +201,6 @@ class ForecastFragment : Fragment() {
         }
     }
 
-    private fun saveCityName(cityName: String?) {
-        sPrefGetCity = requireActivity().getPreferences(Context.MODE_PRIVATE)
-        val editor = sPrefGetCity?.edit()
-        editor!!.putString(SAVED_CITY, cityName)
-        editor.apply()
-    }
-
     private val savedCityName: String?
         get() {
             sPrefGetCity = requireActivity().getPreferences(Context.MODE_PRIVATE)
@@ -223,12 +214,5 @@ class ForecastFragment : Fragment() {
 
     companion object {
         private const val MY_LOG = "MY_LOG"
-        fun newInstance(cityName: String?): ForecastFragment {
-            val forecastFragment = ForecastFragment()
-            val bundle = Bundle()
-            bundle.putString("CITY_NAME", cityName)
-            forecastFragment.arguments = bundle
-            return forecastFragment
-        }
     }
 }

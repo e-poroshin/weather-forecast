@@ -3,13 +3,10 @@ package com.eugene_poroshin.weatherforecast.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.view.MotionEventCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.eugene_poroshin.weatherforecast.R
 import com.eugene_poroshin.weatherforecast.fragments.FragmentCommunicator
@@ -37,10 +34,10 @@ class CityListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view: View
-        return if(viewType==SHOW_MENU){
+        return if (viewType == SHOW_MENU) {
             view = inflater.inflate(R.layout.city_list_remove_item, parent, false)
             MenuViewHolder(view, communicator)
-        }else{
+        } else {
             view = inflater.inflate(R.layout.city_list_item, parent, false)
             CityViewHolder(view, communicator)
         }
